@@ -1,14 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.conf.urls import *
 from django.contrib import admin
 from django.conf import settings
 #from django.views.generic.simple import direct_to_template
-from django.views.generic import TemplateView
-from django.views.generic import RedirectView
-from django.contrib.auth.views import login, logout
-import os
+#AAfrom django.views.generic import TemplateView
+#AAfrom django.views.generic import RedirectView
+#AAfrom django.contrib.auth.views import login, logout
+#AAimport os
 
 # enable cron
 
@@ -23,9 +23,9 @@ urlpatterns =[
     url(r'^admin/', admin.site.urls),
   #  (r'^eisearch/', include('eisearch.urls')),
   #  (r'^accounts/', include('userena.urls')),
-  ##  url(r'^compounds/',include('compounddb.urls')),
-   ## url(r'^my[Cc]ompounds/',include('myCompounds.urls')),
-  #  (r'^tools/', include('tools.urls')),
+    url(r'^compounds/',include('compounddb.urls')),
+   #AA url(r'^my[Cc]ompounds/',include('myCompounds.urls')),
+    url (r'^tools/', include('tools.urls')),
   #  (r'^search/?',  RedirectView.as_view(url='/eisearch/query/')),
   #  (r'^similarity/', include('similarityworkbench.urls')),
    # (r'^ChemmineR/', include('ChemmineR.urls')),
@@ -34,6 +34,7 @@ urlpatterns =[
  #   (r'^ei/?',  RedirectView.as_view(url='/downloads/')),
    #AA url(r'^', cms.urls)
     ]
+print '\n after tools urls'
 
 # AA if settings.DEBUG:
 #     urlpatterns = [r'', url(r'^working/(?P<path>.*)$',
