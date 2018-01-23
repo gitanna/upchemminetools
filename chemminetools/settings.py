@@ -110,12 +110,21 @@ SECRET_KEY = 'd_ce0eja3qgm0b-3u487kf++d+m14satsx-b1l-niq=-e@wt#0'
 #                     'django.template.loaders.app_directories.Loader')
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.common.CommonMiddleware',
+    # 'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.contrib.messages.middleware.MessageMiddleware',
+
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-  #  'cms.middleware.page.CurrentPageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    #  'cms.middleware.page.CurrentPageMiddleware',
   #  'cms.middleware.user.CurrentUserMiddleware',
   #  'cms.middleware.toolbar.ToolbarMiddleware',
 #    'guest.middleware.LogGuests',
@@ -142,21 +151,38 @@ TEMPLATES = [
         #'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+
+
+
                 # Already defined Django-related contexts here'django.contrib.auth.context_processors.auth',
-                    'django.core.context_processors.i18n',
-                    'django.core.context_processors.request',
-                    'django.core.context_processors.media',
-                    'django.core.context_processors.static',
-                    'django.contrib.messages.context_processors.messages',
-                    'cms.context_processors.media',
-                    'sekizai.context_processors.sekizai',
-                    'django.contrib.auth.context_processors.auth',
-                    'django.contrib.admin',
-                    'django.contrib.auth',
-                    'django.contrib.contenttypes',
-                    'django.contrib.messages',
-                    'django.contrib.sessions',
+                  #AA  'django.core.context_processors.i18n',
+                  #AA  'django.core.context_processors.request',
+                  #AA  'django.core.context_processors.media',
+                  #AA  'django.core.context_processors.static',
+                  #AA  'django.contrib.messages.context_processors.messages',
+                  #AA  'cms.context_processors.media',
+
+                 #AA   'django.contrib.auth.context_processors.auth',
+                    # 'django.contrib.admin',
+                    # 'django.contrib.auth',
+                    # 'django.contrib.contenttypes',
+                    # 'django.contrib.messages',
+                    # 'django.contrib.sessions',
                    # 'django.contrib.pages.context_processors',
+                    'django.contrib.auth.context_processors.auth',
+                    # 'django.template.context_processors.debug',
+                    # 'django.template.context_processors.i18n',
+                    # 'django.template.context_processors.media',
+                    # 'django.template.context_processors.static',
+                    # 'django.template.context_processors.tz',
+                    # 'django.contrib.messages.context_processors.messages',
+                    #'cms.context_processors.cms_settings', #as of django-cms 3.0
+                    #'sekizai.context_processors.sekizai',
+
             ],
             'debug':DEBUG,
             'loaders':[
@@ -170,6 +196,11 @@ TEMPLATES = [
 CMS_TEMPLATES = (('template_1.html', 'Template One'), )
 
 ROOT_URLCONF = 'urls'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -196,11 +227,11 @@ INSTALLED_APPS = (
 ##    'bootstrap_toolkit',
    # 'guest',
 #    'django_cron',
- ##   'compounddb',
- ##   'myCompounds',
-   # 'sdftools',
+    'compounddb',
+   # 'myCompounds',
+    'sdftools',
 #    'djcelery',
-  #  'tools', #contains pybel.py
+    'tools', #contains pybel.py
    # 'similarityworkbench',
    # 'ChemmineR',
    # 'eisearch',
@@ -248,6 +279,7 @@ ASSEI_SERVER = ('127.0.0.1', 50008)
 QUERY_TIMEOUT = 60
 #wait on unknown
 #PUBCHEM_DOWNLOADER = '/srv/chemminetools/eis/pubchemdl.py'
+#PUBCHEM_DOWNLOADER = '~/vagrant/projects/chemminetools/pubchem_soap_interface/pubchemdl.py'
 
 # hard limits
 
@@ -266,8 +298,8 @@ USERENA_DISABLE_PROFILE_LIST = True
 LOGIN_URL = '/accounts/signin/'
 LOGOUT_URL = '/accounts/signout/'
 AUTHENTICATION_BACKENDS = (
-    'userena.backends.UserenaAuthenticationBackend',
-    'guardian.backends.ObjectPermissionBackend',
+   # 'userena.backends.UserenaAuthenticationBackend',
+   # 'guardian.backends.ObjectPermissionBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
