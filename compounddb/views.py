@@ -5,14 +5,14 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from compounddb.models import Compound
-#from guest.decorators import guest_allowed, login_required
-from django.contrib.auth import authenticate, login
-from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie
+#AAfrom guest.decorators import guest_allowed, login_required
+#AAfrom django.contrib.auth import authenticate, login
+#AAfrom django.views.decorators.cache import cache_page
+#AArom django.views.decorators.vary import vary_on_cookie
 from django.forms import ModelForm
 from django.contrib import messages
-#import openbabel
-#import pybel
+#AAimport openbabel
+#AAimport pybel
 import re
 from simplejson import dumps
 
@@ -68,7 +68,12 @@ def compound_detail(
 
     try:
         compound = Compound.objects.get(id__iexact=id,
-                user=request.user)
+                user = 1)
+
+       #AA user=request.user)
+         #AAcompound = Compound.objects.get(id__iexact=id)
+
+
     except Compound.DoesNotExist:
         raise Http404
 

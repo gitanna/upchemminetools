@@ -7,21 +7,22 @@ import csv
 import time
 from collections import defaultdict, OrderedDict
 from django.contrib.auth.decorators import user_passes_test
-from django.shortcuts import redirect, render_to_response
+from django.shortcuts import render,redirect, render_to_response
 from django.template import RequestContext
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.forms import ModelForm
 from django.contrib import messages
 from django.utils.http import urlquote
-from guest.decorators import guest_allowed, login_required
+#AAfrom guest.decorators import guest_allowed, login_required
 from compounddb.models import Compound
 from tools.runapp import *
 from models import *
 from sdftools.moleculeformats import batch_sdf_to_smiles
 from simplejson import dumps
 
-@guest_allowed
+#AA@guest_allowed
 def launch_job(request, category=None):
+    print '\n in launch_job'
     if request.is_ajax():
 
         # for ajax requests, return HTML form for each app
@@ -67,13 +68,23 @@ def launch_job(request, category=None):
         messages.success(request, 'Success: job launched.')
         return redirect(view_job, job_id=newJob.id, resource='')
     else:
+        print '\n in except and category'
         if category:
+            print '\n in if category after else', category
             fromWorkbench = False
+            print '\n after formWorkbench'
             try:
+
                 category = \
-                    ApplicationCategories.objects.get(name=category)
-                compoundCount = \
-                    Compound.objects.filter(user=request.user).count()
+                ApplicationCategories.objects.get(name=category)
+                print 'after category'
+               # compoundCount = \
+               # Compound.objects.filter(user=request.user).count()
+               # category.name = 'Upload' #AA
+
+                compoundCount = 0 #AA
+                print '\n here?', compoundCount
+                print '\n category and compoundCount', category.name, compoundCount
                 if category.name != 'Upload':
                     fromWorkbench = True
                 if category.name == 'Clustering' and compoundCount < 3:
@@ -86,25 +97,39 @@ def launch_job(request, category=None):
                                   'Notice: you must have at least one compound to compute properties. Please use this form to add compounds and then click "Properties" again.'
                                   )
                     return redirect('myCompounds.views.uploadCompound')
+                print '\n category.,name is', category.name
                 title = 'Launch ' + category.name + ' Job'
+                print '\n launch,', title
                 apps = Application.objects.filter(category=category)
             except:
+                print '\n in except end'
                 raise Http404
         else:
+            print '\n in launch job'
             title = 'Launch Job'
             apps = Application.objects.filter()
         fields = {}
         fields['application'] = ModelChoiceField(queryset=apps,
                 empty_label='')
         form = type('%sForm' % 'choose application', (Form, ), fields)
-        return render_to_response('submitForm.html', dict(title=title,
-                                  form=form,
-                                  fromWorkbench=fromWorkbench,
-                                  totalCompounds=Compound.objects.filter(user=request.user).count()),
-                                  context_instance=RequestContext(request))
+        # return render_to_response('submitForm.html', dict(title=title,
+        #                           form=form,
+        #                           fromWorkbench=fromWorkbench,
+        #                           #AAtotalCompounds=Compound.objects.filter(user=request.user).count()),
+        #                           totalCompounds=0),
+        #
+        #                           context_instance=RequestContext(request))
+
+        print '\n before dict ',  request
+        context = {'title':title, 'form':form, 'fromWorkbench':fromWorkbench,'totlaCompounds':0}
+        print '\n after dict ', dict
+        context = {}
+        #return render(request,'submitForm.html', dict)
+        return render(request, 'submitForm1.html',context)
 
 
-@guest_allowed
+
+#@guest_allowed
 def view_job(
     request,
     job_id,
@@ -286,7 +311,7 @@ def view_job(
                                   context_instance=RequestContext(request))
 
 
-@guest_allowed
+#AA@guest_allowed
 def list_jobs(request):
     matches = getJobList(request.user)
     return render_to_response('list_jobs.html', dict(matches=matches),

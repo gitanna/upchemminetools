@@ -3,15 +3,15 @@
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-#AA from guest.decorators import guest_allowed, login_required
+from guest.decorators import guest_allowed, login_required
 from django.template import RequestContext
 from django.shortcuts import redirect, render_to_response
 from compounddb import first_mol, InvalidInputError
 
-# from compounddb.search import search
-# from compounddb.views import get_library_by_name
+#from compounddb.search import search
+#from compounddb.views import get_library_by_name
 
-#AA from compounddb.tools import parse_annotation, insert_single_compound
+#from compounddb.tools import parse_annotation, insert_single_compound
 from compounddb.models import Compound, SDFFile
 from pubchem_soap_interface.DownloadCIDs import DownloadCIDs
 from django.contrib import messages
@@ -20,10 +20,10 @@ import openbabel
 import re
 import string
 import time
-#AAfrom sdftools.moleculeformats import smiles_to_sdf, sdf_to_sdf, \
-   # InputError, sdf_to_smiles
+from sdftools.moleculeformats import smiles_to_sdf, sdf_to_sdf, \
+     InputError, sdf_to_smiles
 from django.conf import settings
-#AA from tools.runapp import createJob, updateJob
+from tools.runapp import createJob, updateJob
 from django.utils.http import urlquote
 
 
@@ -71,16 +71,16 @@ def uploadCompound(request, resource = None, job_id = None):
                 smiles = request.POST['smiles'].split('\n')
                 for line in smiles:
                     if re.match(r"^\S+", line):
-                        sdf = sdf #AA+ smiles_to_sdf(str(line))
+                        sdf = sdf + smiles_to_sdf(str(line)) #AA
             except:
                 messages.error(request, 'Error: Invalid SMILES string!')
                 sdf = None
         elif resource == 'job':
             input_mode = 'sdf-upload'
-            # AA job = updateJob(request.user, job_id)
-            # f = open(job.output, 'r')
-            # sdf = f.read()
-            # f.close()
+            job = updateJob(request.user, job_id)
+            f = open(job.output, 'r')
+            sdf = f.read()
+            f.close()
         elif 'sdf' in request.FILES:
             input_mode = 'sdf-upload'
             try:
@@ -98,10 +98,10 @@ def uploadCompound(request, resource = None, job_id = None):
                 compid = str(request.POST['id'])
                 compid = re.match(r"^(\S{0,20})", compid).group(1)
                 try:
-                   #AA smiles = sdf_to_smiles(sdf)
-                    smiles = re.match(r"^(\S+)", smiles).group(1)
-                    smiles = smiles + ' ' + compid
-                   #AA sdf = smiles_to_sdf(smiles)
+                    smiles = sdf_to_smiles(sdf)
+                    smiles = re.match(r"^(\S+)", smiles).group(1) #AA
+                    smiles = smiles + ' ' + compid #AA
+                    sdf = smiles_to_sdf(smiles) #AA
                 except:
                     messages.error(request, 'Invalid drawing!')
                     sdf = None
@@ -137,26 +137,28 @@ def uploadCompound(request, resource = None, job_id = None):
                     dict(input_mode=input_mode,
                     post_data=request.POST),
                     context_instance=RequestContext(request))
-       #AA newJob = createJob(request.user, 'Upload Compounds', '',
-                          # ['--user=' + str(request.user.id)], sdf)
+        newJob = createJob(request.user, 'Upload Compounds', '',# AA
+                           ['--user=' + str(request.user.id)], sdf)
         time.sleep(2)
-        # AA return redirect('tools.views.view_job', job_id=newJob.id,
-        #                 resource='')
+        return redirect('tools.views.view_job', job_id=newJob.id,# AA
+                         resource='')
 
         return redirect('tools.views.view_job', job_id=1,
                          resource='')
 
 def makeSDF(user):
-    compoundList = Compound.objects.filter(user=user)
+    compoundList = Compound.objects.filter(user=user)#AA
+    #compoundList = Compound.objects.all()
+
     sdf = u''
     for compound in compoundList:
         sdf = sdf + compound.sdffile_set.all()[0].sdffile.rstrip() \
             + '\n'
     return sdf
 
-
 def makeSMILES(user):
-    compoundList = Compound.objects.filter(user=user)
+    compoundList = Compound.objects.filter(user=user)#AA
+    #compoundList = Compound.objects.all()
     smiles = u''
     for compound in compoundList:
         smiles = smiles + compound.smiles.rstrip() + '\n'
@@ -166,7 +168,8 @@ def makeSMILES(user):
 def getMyCompounds(request):
     page = request.GET.get('page')
     result = []
-    matches = Compound.objects.filter(user=request.user)
+    matches = Compound.objects.filter(user=request.user)#AA
+    #matches  =  Compound.objects.all()
     paginator = Paginator(matches, 100)
 
     try:
@@ -218,13 +221,15 @@ def getInChI(sdf):
     obConversion = openbabel.OBConversion()
     obConversion.SetInAndOutFormats('sdf', 'InChI')
     mol = openbabel.OBMol()
-    # AAif not obConversion.ReadString(mol, sdf):
-    #     raise InputError
+    if not obConversion.ReadString(mol, sdf):#AA
+       raise InputError
     return obConversion.WriteString(mol)
 
 
 def deleteMyCompounds(request, cids=None):
-    compoundsToDelete = Compound.objects.filter(user=request.user)
+    compoundsToDelete = Compound.objects.filter(user=request.user)#AA
+    #compoundsToDelete = Compound.objects.all()
+
     if cids:
         for cid in cids:
             Compound.objects.filter(cid=cid).delete()
