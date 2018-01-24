@@ -68,16 +68,12 @@ def launch_job(request, category=None):
         messages.success(request, 'Success: job launched.')
         return redirect(view_job, job_id=newJob.id, resource='')
     else:
-        print '\n in except and category'
         if category:
-            print '\n in if category after else', category
             fromWorkbench = False
-            print '\n after formWorkbench'
             try:
 
                 category = \
                 ApplicationCategories.objects.get(name=category)
-                print 'after category'
                # compoundCount = \
                # Compound.objects.filter(user=request.user).count()
                # category.name = 'Upload' #AA
@@ -112,20 +108,10 @@ def launch_job(request, category=None):
         fields['application'] = ModelChoiceField(queryset=apps,
                 empty_label='')
         form = type('%sForm' % 'choose application', (Form, ), fields)
-        # return render_to_response('submitForm.html', dict(title=title,
-        #                           form=form,
-        #                           fromWorkbench=fromWorkbench,
-        #                           #AAtotalCompounds=Compound.objects.filter(user=request.user).count()),
-        #                           totalCompounds=0),
-        #
-        #                           context_instance=RequestContext(request))
 
-        print '\n before dict ',  request
-        context = {'title':title, 'form':form, 'fromWorkbench':fromWorkbench,'totlaCompounds':0}
-        print '\n after dict ', dict
-        context = {}
-        #return render(request,'submitForm.html', dict)
-        return render(request, 'submitForm1.html',context)
+        dict = {'title':title, 'form':form, 'fromWorkbench':fromWorkbench,'totlaCompounds':0}
+
+        return render(request, 'submitForm.html',dict)
 
 
 
@@ -176,10 +162,10 @@ def view_job(
                 smiOnly = match.group(1)
                 cid = match.group(2)
                 quotedSmiles.append({'smiles': urlquote(smiOnly), 'cid':cid})
-            return render_to_response('sdfUpload.html',
-                    dict(title=str(job.application) + ' Results',
-                    job=job, compounds=quotedSmiles),
-                    context_instance=RequestContext(request))
+
+            return render(request, 'sdfUpload.html', dict(title=str(job.application) + ' Results',
+                    job=job, compounds=quotedSmiles))
+
         if job.application.output_type == 'text/ei.search.result':
             f = open(job.output, 'r')
             csvinput = csv.reader(f, delimiter=' ')
@@ -187,10 +173,11 @@ def view_job(
             for line in csvinput:
                 csvOutput.append(line)
             f.close()
-            return render_to_response('eiresult.html',
-                    dict(title=str(job.application) + ' Results',
-                    job=job, compounds=csvOutput, query=job.input),
-                    context_instance=RequestContext(request))
+
+            return render(request,'eiresult.html',
+                                      dict(title=str(job.application) + ' Results',
+                                           job=job, compounds=csvOutput, query=job.input)
+                                    )
         if job.application.output_type == 'text/fp.search.result':
             f = open(job.output, 'r')
             csvinput = csv.reader(f, delimiter=' ')
@@ -198,10 +185,10 @@ def view_job(
             for line in csvinput:
                 csvOutput.append(line)
             f.close()
-            return render_to_response('fpresult.html',
-                    dict(title=str(job.application) + ' Results',
-                    job=job, compounds=csvOutput, query=job.input),
-                    context_instance=RequestContext(request))
+
+            return render(request,'fpresult.html',
+                                      dict(title=str(job.application) + ' Results',
+                                           job=job, compounds=csvOutput, query=job.input))
         elif job.application.output_type == 'text/sdf.upload':
             f = open(job.output, 'r')
             message = f.read()
@@ -219,10 +206,10 @@ def view_job(
             f = open(job.output, 'r')
             plotJSON = f.read()
             f.close()
-            return render_to_response('view_network.html',
-                    dict(title=str(job.application) + ' Results',
-                    result=finalResult, job=job, plotJSON=plotJSON),
-                    context_instance=RequestContext(request))
+
+            return render(request,'view_network.html',
+                                      dict(title=str(job.application) + ' Results',
+                                           result=finalResult, job=job, plotJSON=plotJSON))
         elif job.application.output_type \
             == 'application/json.canvasxpress':
             f = open(job.output, 'r')
@@ -231,16 +218,18 @@ def view_job(
             if (job.application.name == 'Hierarchical Clustering')\
                 or (job.application.name == 'Numeric Data Clustering'):
                 tree = True 
-                return render_to_response('view_job_oldcx.html',
-                        dict(title=str(job.application) + ' Results',
-                        result=finalResult, tree=tree, job=job, plotJSON=plotJSON),
-                        context_instance=RequestContext(request))
+
+                return render(request,'view_job_oldcx.html',
+                                          dict(title=str(job.application) + ' Results',
+                                               result=finalResult, tree=tree, job=job, plotJSON=plotJSON)
+                                          )
             else:
                 tree = False
-                return render_to_response('view_job.html',
-                        dict(title=str(job.application) + ' Results',
-                        result=finalResult, tree=tree, job=job, plotJSON=plotJSON),
-                        context_instance=RequestContext(request))
+
+                return render(request,'view_job.html',
+                                          dict(title=str(job.application) + ' Results',
+                                               result=finalResult, tree=tree, job=job, plotJSON=plotJSON),
+                                          )
         elif job.application.output_type == 'text/properties.table':
             f = open(job.output, 'r')
             csvinput = csv.reader(f)
@@ -248,10 +237,10 @@ def view_job(
             for line in csvinput:
                 csvOutput.append(line)
             f.close()
-            return render_to_response('view_csv.html',
-                    dict(title=str(job.application) + ' Results',
-                    result=finalResult, job=job, csv=csvOutput),
-                    context_instance=RequestContext(request))
+
+            return render(request,'view_csv.html',
+                                      dict(title=str(job.application) + ' Results',
+                                           result=finalResult, job=job, csv=csvOutput))
         elif job.application.output_type == 'text/bins.table':
             f = open(job.output, 'r')
             csvinput = csv.reader(f)
@@ -266,10 +255,11 @@ def view_job(
             f.close()
             bins = OrderedDict(sorted(bins.items(), key=lambda t: \
                                int(t[0])))
-            return render_to_response('bins.html',
-                    dict(title=str(job.application) + ' Results',
-                    result=finalResult, job=job, bins=bins),
-                    context_instance=RequestContext(request))
+
+            return render(request,'bins.html',
+                                      dict(title=str(job.application) + ' Results',
+                                           result=finalResult, job=job, bins=bins)
+                                     )
         elif job.application.output_type == 'chemical/x-mdl-sdfile':
             f = open(job.output, 'r')
             sdf = f.read()
@@ -296,23 +286,21 @@ def view_job(
             return redirect(view_job, job_id=job.id, resource='download'
                             , filename='output')
     elif job.status == Job.RUNNING:
-        return render_to_response('wait.html',
+
+        return render(request,'wait.html',
                                   dict(title=job.application.name
-                                  + ' Job Running <img src="/static/images/spinner.gif"/>'
-                                  ),
-                                  context_instance=RequestContext(request))
+                                             + ' Job Running <img src="/static/images/spinner.gif"/>'
+                                       ))
     elif job.status == Job.FAILED:
         messages.error(request,
                        'Job Failed due to invalid input data and/or invalid selected options. Please double check that your uploaded data (compounds and/or numeric data), and input options are valid and try running the tool again.'
                        )
-        return render_to_response('view_job.html', dict(title='Error: '
-                                  + str(job.application) + ' Job Failed'
-                                  , job=job),
-                                  context_instance=RequestContext(request))
 
-
+        return render(request,'view_job.html', dict(title='Error: '
+                                                              + str(job.application) + ' Job Failed'
+                                                        , job=job))
 #AA@guest_allowed
 def list_jobs(request):
     matches = getJobList(request.user)
-    return render_to_response('list_jobs.html', dict(matches=matches),
-                              context_instance=RequestContext(request))
+  
+    return render(request,'list_jobs.html', dict(matches=matches))
