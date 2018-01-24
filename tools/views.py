@@ -7,7 +7,7 @@ import csv
 import time
 from collections import defaultdict, OrderedDict
 from django.contrib.auth.decorators import user_passes_test
-from django.shortcuts import render,redirect, render_to_response
+from django.shortcuts import render,redirect
 from django.template import RequestContext
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.forms import ModelForm
@@ -302,5 +302,5 @@ def view_job(
 #AA@guest_allowed
 def list_jobs(request):
     matches = getJobList(request.user)
-  
+
     return render(request,'list_jobs.html', dict(matches=matches))

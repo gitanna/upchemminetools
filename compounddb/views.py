@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 from compounddb.models import Compound
 #AAfrom guest.decorators import guest_allowed, login_required
@@ -109,11 +109,9 @@ def compound_detail(
             return HttpResponse('deleted', content_type='text/plain')
         elif resource == 'editform':
             form = compoundForm(instance=compound)
-            return render_to_response('genericForm.html',
+            return render(request,'genericForm.html',
                     dict(title='Edit Compound \'' + compound.cid + '\''
-                    , form=form),
-                    context_instance=RequestContext(request))
+                    , form=form))
 
-    return render_to_response('compound.html', dict(compound=compound,
-                              sdf=sdf, smiles=smiles, inchi=inchi),
-                              context_instance=RequestContext(request))
+    return render('compound.html', dict(compound=compound,
+                              sdf=sdf, smiles=smiles, inchi=inchi))

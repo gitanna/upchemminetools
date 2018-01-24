@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from guest.decorators import guest_allowed, login_required
 from django.template import RequestContext
-from django.shortcuts import redirect, render_to_response
+from django.shortcuts import redirect, render
 from compounddb import first_mol, InvalidInputError
 
 #from compounddb.search import search
@@ -48,17 +48,15 @@ def showCompounds(request, resource):
         for match in matches:
             match.smiles = re.match(r"^(\S+)", match.smiles).group(1)
             match.smiles = urlquote(match.smiles)
-    return render_to_response('showCompounds.html', dict(p=page,
-                              matches=matches),
-                              context_instance=RequestContext(request))
+    return render (request,'showCompounds.html', dict(p=page,
+                              matches=matches))
 
 
 #@guest_allowed
 def uploadCompound(request, resource = None, job_id = None):
     if (request.method == 'GET') and (resource != u'job'):
-        return render_to_response('addCompounds.html',
-                                  dict(input_mode='smiles-input'),
-                                  context_instance=RequestContext(request))
+        return render(request,'addCompounds.html',
+                                  dict(input_mode='smiles-input'))
     else:
         sdf = None
         name = None
@@ -133,10 +131,9 @@ def uploadCompound(request, resource = None, job_id = None):
                 sdf = None
 
         if not sdf:
-            return render_to_response('addCompounds.html',
+            return render(request,'addCompounds.html',
                     dict(input_mode=input_mode,
-                    post_data=request.POST),
-                    context_instance=RequestContext(request))
+                    post_data=request.POST))
         newJob = createJob(request.user, 'Upload Compounds', '',# AA
                            ['--user=' + str(request.user.id)], sdf)
         time.sleep(2)
