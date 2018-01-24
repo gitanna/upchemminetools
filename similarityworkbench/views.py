@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 from django.http import Http404, HttpResponseBadRequest, HttpResponse
 from simplejson import dumps
@@ -72,9 +72,8 @@ def ui(request):
             preload = dumps(get_workbench_compounds(request))
         except:
             preload = ''
-        return render_to_response('similarityworkbench.html',
-                                  dict(preload=preload),
-                                  context_instance=RequestContext(request))
+        return render(request,'similarityworkbench.html',
+                                  dict(preload=preload))
     else:
 
         # on POST, do actual work; the form tells what function to invoke
